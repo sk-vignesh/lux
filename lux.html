@@ -1,324 +1,357 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Shield, 
-  Search, 
-  Bell, 
-  Menu, 
-  X, 
-  ArrowRight, 
-  Clock, 
-  Tag, 
-  ChevronRight, 
-  Lock,
-  Gem,
-  Car,
-  Watch,
-  Briefcase
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRIVÉ | Members Only</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel (for compiling JSX in the browser) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
 
-/* --- ASSET DATA --- 
-  Mocking high-value items with refreshed imagery. 
-*/
-const ASSETS = [
-  {
-    id: 1,
-    title: "1967 Ferrari 275 GTB/4",
-    category: "Supercar",
-    price: "$3,250,000",
-    image: "https://images.unsplash.com/photo-1592198084033-aade902d1aae?auto=format&fit=crop&q=80&w=800",
-    specs: "3.3L V12 • 280 hp • Rosso Corsa",
-    status: "Available"
-  },
-  {
-    id: 2,
-    title: "Patek Philippe Nautilus 5711",
-    category: "Timepiece",
-    price: "$145,000",
-    image: "https://images.unsplash.com/photo-1639037687665-9ea8cdb47d17?auto=format&fit=crop&q=80&w=800",
-    specs: "Tiffany Dial • 40mm • Steel",
-    status: "Pending"
-  },
-  {
-    id: 3,
-    title: "Aston Martin Valkyrie",
-    category: "Supercar",
-    price: "$2,900,000",
-    image: "https://images.unsplash.com/photo-1627454820574-fb6b1586df1f?auto=format&fit=crop&q=80&w=800",
-    specs: "6.5L V12 • 1,160 hp • Lunar White",
-    status: "Available"
-  },
-  {
-    id: 4,
-    title: "Audemars Piguet Royal Oak",
-    category: "Timepiece",
-    price: "$85,000",
-    image: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80&w=800",
-    specs: "Skeleton • Rose Gold • 41mm",
-    status: "Sold"
-  }
-];
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .fade-enter { opacity: 0; }
+        .fade-enter-active { opacity: 1; transition: opacity 500ms; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-/* --- COMPONENT: ACCESS GATE (Login) ---
-  Simulates the invite-only feel.
-*/
-const AccessGate = ({ onEnter }) => {
-  const [code, setCode] = useState('');
-  const [loading, setLoading] = useState(false);
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-  const handleEnter = (e) => {
-    e.preventDefault();
-    if (!code) return;
-    setLoading(true);
-    setTimeout(() => {
-      onEnter();
-    }, 1200);
-  };
+        /* --- ICONS (Inline SVGs to avoid dependency issues) --- */
+        const IconWrapper = ({ children, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                {children}
+            </svg>
+        );
 
-  return (
-    <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center relative overflow-hidden text-white font-sans selection:bg-white selection:text-black">
-      {/* Background Ambience */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-900/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-neutral-800/20 rounded-full blur-[120px]" />
-      </div>
-
-      <div className="z-10 w-full max-w-md px-8 text-center">
-        <div className="mb-12 flex justify-center">
-          <Shield className="w-12 h-12 text-neutral-200 opacity-90" strokeWidth={1} />
-        </div>
+        const Shield = ({ className }) => <IconWrapper className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></IconWrapper>;
+        const Search = ({ className }) => <IconWrapper className={className}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></IconWrapper>;
+        const Bell = ({ className }) => <IconWrapper className={className}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></IconWrapper>;
+        const Menu = ({ className }) => <IconWrapper className={className}><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></IconWrapper>;
+        const ArrowRight = ({ className, size }) => <svg xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
         
-        <h1 className="text-3xl md:text-4xl font-light tracking-[0.2em] uppercase mb-4 text-white">
-          Privé
-        </h1>
-        <p className="text-neutral-500 text-sm tracking-widest uppercase mb-12">
-          Members Only Access
-        </p>
+        /* --- ASSET DATA --- */
+        const ASSETS = [
+            {
+                id: 1,
+                title: "1967 Ferrari 275 GTB/4",
+                category: "Supercar",
+                price: "$3,250,000",
+                image: "https://images.unsplash.com/photo-1592198084033-aade902d1aae?auto=format&fit=crop&q=80&w=800",
+                specs: "3.3L V12 • 280 hp • Rosso Corsa",
+                status: "Available"
+            },
+            {
+                id: 2,
+                title: "Patek Philippe Nautilus 5711",
+                category: "Timepiece",
+                price: "$145,000",
+                image: "https://images.unsplash.com/photo-1639037687665-9ea8cdb47d17?auto=format&fit=crop&q=80&w=800",
+                specs: "Tiffany Dial • 40mm • Steel",
+                status: "Pending"
+            },
+            {
+                id: 3,
+                title: "Aston Martin Valkyrie",
+                category: "Supercar",
+                price: "$2,900,000",
+                image: "https://images.unsplash.com/photo-1627454820574-fb6b1586df1f?auto=format&fit=crop&q=80&w=800",
+                specs: "6.5L V12 • 1,160 hp • Lunar White",
+                status: "Available"
+            },
+            {
+                id: 4,
+                title: "Audemars Piguet Royal Oak",
+                category: "Timepiece",
+                price: "$85,000",
+                image: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80&w=800",
+                specs: "Skeleton • Rose Gold • 41mm",
+                status: "Sold"
+            }
+        ];
 
-        <form onSubmit={handleEnter} className="flex flex-col gap-6">
-          <div className="relative group">
-            <input 
-              type="password" 
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="ENTER ACCESS CODE"
-              className="w-full bg-transparent border-b border-neutral-800 text-center py-4 text-xl tracking-[0.3em] outline-none text-white placeholder-neutral-700 transition-all duration-300 focus:border-white focus:placeholder-transparent"
-            />
-            <div className="absolute bottom-0 left-0 w-full h-[1px] bg-white scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500" />
-          </div>
+        /* --- COMPONENT: ACCESS GATE (Login) --- */
+        const AccessGate = ({ onEnter }) => {
+            const [code, setCode] = useState('');
+            const [loading, setLoading] = useState(false);
 
-          <button 
-            type="submit"
-            className="mt-8 text-xs tracking-[0.2em] text-neutral-400 hover:text-white transition-colors uppercase flex items-center justify-center gap-2"
-          >
-            {loading ? 'Authenticating...' : 'Unlock Vault'}
-            {!loading && <ArrowRight size={14} />}
-          </button>
-        </form>
-      </div>
+            const handleEnter = (e) => {
+                e.preventDefault();
+                if (!code) return;
+                setLoading(true);
+                setTimeout(() => {
+                    onEnter();
+                }, 1200);
+            };
 
-      <div className="absolute bottom-8 text-[10px] text-neutral-600 tracking-widest uppercase">
-        London • New York • Dubai
-      </div>
-    </div>
-  );
-};
+            return (
+                <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center relative overflow-hidden text-white font-sans selection:bg-white selection:text-black">
+                    {/* Background Ambience */}
+                    <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-900/10 rounded-full blur-[120px]" />
+                        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-neutral-800/20 rounded-full blur-[120px]" />
+                    </div>
 
-/* --- COMPONENT: MARKETPLACE (Main App) ---
-*/
-const Marketplace = () => {
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [scrolled, setScrolled] = useState(false);
+                    <div className="z-10 w-full max-w-md px-8 text-center">
+                        <div className="mb-12 flex justify-center">
+                            <Shield className="w-12 h-12 text-neutral-200 opacity-90" />
+                        </div>
+                        
+                        <h1 className="text-3xl md:text-4xl font-light tracking-[0.2em] uppercase mb-4 text-white">
+                            Privé
+                        </h1>
+                        <p className="text-neutral-500 text-sm tracking-widest uppercase mb-12">
+                            Members Only Access
+                        </p>
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+                        <form onSubmit={handleEnter} className="flex flex-col gap-6">
+                            <div className="relative group">
+                                <input 
+                                    type="password" 
+                                    value={code}
+                                    onChange={(e) => setCode(e.target.value)}
+                                    placeholder="ENTER ACCESS CODE"
+                                    className="w-full bg-transparent border-b border-neutral-800 text-center py-4 text-xl tracking-[0.3em] outline-none text-white placeholder-neutral-700 transition-all duration-300 focus:border-white focus:placeholder-transparent"
+                                />
+                                <div className="absolute bottom-0 left-0 w-full h-[1px] bg-white scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500" />
+                            </div>
 
-  return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-200 font-sans selection:bg-neutral-200 selection:text-neutral-950">
-      
-      {/* Navigation */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-neutral-950/80 backdrop-blur-xl border-b border-white/5 py-4' : 'bg-transparent py-8'}`}>
-        <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center">
-          <div className="flex items-center gap-12">
-            <span className="text-xl font-light tracking-[0.2em] text-white">PRIVÉ</span>
-            <div className="hidden md:flex items-center gap-8 text-xs tracking-widest text-neutral-400">
-              <span className="hover:text-white cursor-pointer transition-colors">MARKET</span>
-              <span className="hover:text-white cursor-pointer transition-colors">CONCIERGE</span>
-              <span className="hover:text-white cursor-pointer transition-colors">EVENTS</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-6">
-            <Search className="w-4 h-4 text-neutral-400 hover:text-white cursor-pointer transition-colors" />
-            <Bell className="w-4 h-4 text-neutral-400 hover:text-white cursor-pointer transition-colors" />
-            <div className="w-8 h-8 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-[10px] text-white tracking-wider">
-              JM
-            </div>
-          </div>
-        </div>
-      </nav>
+                            <button 
+                                type="submit"
+                                className="mt-8 text-xs tracking-[0.2em] text-neutral-400 hover:text-white transition-colors uppercase flex items-center justify-center gap-2"
+                            >
+                                {loading ? 'Authenticating...' : 'Unlock Vault'}
+                                {!loading && <ArrowRight size={14} />}
+                            </button>
+                        </form>
+                    </div>
 
-      {/* Hero Section */}
-      <header className="pt-32 pb-20 px-6 md:px-12 max-w-7xl mx-auto">
-        <div className="relative w-full h-[60vh] md:h-[70vh] rounded-sm overflow-hidden group">
-          <img 
-            src="https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&q=80&w=2000" 
-            alt="Featured Asset" 
-            className="w-full h-full object-cover transition-transform duration-[1.5s] ease-in-out group-hover:scale-105 opacity-80"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent opacity-90" />
-          
-          <div className="absolute bottom-0 left-0 p-8 md:p-16 w-full">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="px-2 py-1 border border-white/20 text-[10px] uppercase tracking-widest text-white backdrop-blur-sm">
-                Featured Lot
-              </span>
-              <span className="text-[10px] uppercase tracking-widest text-neutral-400">
-                Ends in 4h 20m
-              </span>
-            </div>
-            <h2 className="text-4xl md:text-6xl font-light text-white mb-2 tracking-tight">
-              1955 Porsche 550 Spyder
-            </h2>
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mt-6 border-t border-white/10 pt-6">
-              <div>
-                <p className="text-xs text-neutral-500 uppercase tracking-widest mb-1">Current Bid</p>
-                <p className="text-2xl text-white font-light">$4,150,000</p>
-              </div>
-              <button className="bg-white text-black px-8 py-3 text-xs uppercase tracking-widest hover:bg-neutral-200 transition-colors">
-                View Lot Details
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Filter / Ticker */}
-      <div className="px-6 md:px-12 max-w-7xl mx-auto mb-12">
-        <div className="flex flex-wrap gap-4 md:gap-8 border-b border-neutral-800 pb-4 overflow-x-auto no-scrollbar">
-          {['All', 'Supercars', 'Timepieces', 'Fine Art', 'Real Estate'].map((cat) => (
-            <button 
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`text-xs uppercase tracking-widest pb-4 -mb-[17px] border-b transition-colors whitespace-nowrap ${
-                activeCategory === cat 
-                  ? 'text-white border-white' 
-                  : 'text-neutral-500 border-transparent hover:text-neutral-300'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Grid */}
-      <div className="px-6 md:px-12 max-w-7xl mx-auto pb-32">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-8 gap-y-16">
-          {ASSETS.map((asset) => (
-            <div key={asset.id} className="group cursor-pointer">
-              <div className="relative aspect-[4/3] overflow-hidden mb-6 bg-neutral-900">
-                <img 
-                  src={asset.image} 
-                  alt={asset.title} 
-                  className={`w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105 ${asset.status === 'Sold' ? 'grayscale opacity-50' : 'opacity-90'}`}
-                />
-                
-                {asset.status === 'Available' && (
-                  <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-md px-3 py-1">
-                    <span className="text-[10px] uppercase tracking-widest text-white flex items-center gap-2">
-                      <div className="w-1 h-1 bg-green-400 rounded-full animate-pulse" />
-                      Live
-                    </span>
-                  </div>
-                )}
-                
-                {/* Overlay on Hover */}
-                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </div>
-
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-xl text-white font-light mb-1 group-hover:text-neutral-400 transition-colors">
-                    {asset.title}
-                  </h3>
-                  <p className="text-xs text-neutral-500 uppercase tracking-widest mb-3">
-                    {asset.specs}
-                  </p>
+                    <div className="absolute bottom-8 text-[10px] text-neutral-600 tracking-widest uppercase">
+                        London • New York • Dubai
+                    </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-lg text-white font-light">{asset.price}</p>
-                  <p className="text-[10px] text-neutral-600 uppercase tracking-widest mt-1">
-                    {asset.category}
-                  </p>
+            );
+        };
+
+        /* --- COMPONENT: MARKETPLACE (Main App) --- */
+        const Marketplace = () => {
+            const [activeCategory, setActiveCategory] = useState('All');
+            const [scrolled, setScrolled] = useState(false);
+
+            useEffect(() => {
+                const handleScroll = () => setScrolled(window.scrollY > 50);
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+
+            return (
+                <div className="min-h-screen bg-neutral-950 text-neutral-200 font-sans selection:bg-neutral-200 selection:text-neutral-950">
+                    
+                    {/* Navigation */}
+                    <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-neutral-950/80 backdrop-blur-xl border-b border-white/5 py-4' : 'bg-transparent py-8'}`}>
+                        <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center">
+                            <div className="flex items-center gap-12">
+                                <span className="text-xl font-light tracking-[0.2em] text-white">PRIVÉ</span>
+                                <div className="hidden md:flex items-center gap-8 text-xs tracking-widest text-neutral-400">
+                                    <span className="hover:text-white cursor-pointer transition-colors">MARKET</span>
+                                    <span className="hover:text-white cursor-pointer transition-colors">CONCIERGE</span>
+                                    <span className="hover:text-white cursor-pointer transition-colors">EVENTS</span>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-6">
+                                <Search className="w-4 h-4 text-neutral-400 hover:text-white cursor-pointer transition-colors" />
+                                <Bell className="w-4 h-4 text-neutral-400 hover:text-white cursor-pointer transition-colors" />
+                                <div className="w-8 h-8 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-[10px] text-white tracking-wider">
+                                    JM
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Hero Section */}
+                    <header className="pt-32 pb-20 px-6 md:px-12 max-w-7xl mx-auto">
+                        <div className="relative w-full h-[60vh] md:h-[70vh] rounded-sm overflow-hidden group">
+                            <img 
+                                src="https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&q=80&w=2000" 
+                                alt="Featured Asset" 
+                                className="w-full h-full object-cover transition-transform duration-[1.5s] ease-in-out group-hover:scale-105 opacity-80"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent opacity-90" />
+                            
+                            <div className="absolute bottom-0 left-0 p-8 md:p-16 w-full">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <span className="px-2 py-1 border border-white/20 text-[10px] uppercase tracking-widest text-white backdrop-blur-sm">
+                                        Featured Lot
+                                    </span>
+                                    <span className="text-[10px] uppercase tracking-widest text-neutral-400">
+                                        Ends in 4h 20m
+                                    </span>
+                                </div>
+                                <h2 className="text-4xl md:text-6xl font-light text-white mb-2 tracking-tight">
+                                    1955 Porsche 550 Spyder
+                                </h2>
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mt-6 border-t border-white/10 pt-6">
+                                    <div>
+                                        <p className="text-xs text-neutral-500 uppercase tracking-widest mb-1">Current Bid</p>
+                                        <p className="text-2xl text-white font-light">$4,150,000</p>
+                                    </div>
+                                    <button className="bg-white text-black px-8 py-3 text-xs uppercase tracking-widest hover:bg-neutral-200 transition-colors">
+                                        View Lot Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Filter / Ticker */}
+                    <div className="px-6 md:px-12 max-w-7xl mx-auto mb-12">
+                        <div className="flex flex-wrap gap-4 md:gap-8 border-b border-neutral-800 pb-4 overflow-x-auto no-scrollbar">
+                            {['All', 'Supercars', 'Timepieces', 'Fine Art', 'Real Estate'].map((cat) => (
+                                <button 
+                                    key={cat}
+                                    onClick={() => setActiveCategory(cat)}
+                                    className={`text-xs uppercase tracking-widest pb-4 -mb-[17px] border-b transition-colors whitespace-nowrap ${
+                                        activeCategory === cat 
+                                        ? 'text-white border-white' 
+                                        : 'text-neutral-500 border-transparent hover:text-neutral-300'
+                                    }`}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Grid */}
+                    <div className="px-6 md:px-12 max-w-7xl mx-auto pb-32">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-8 gap-y-16">
+                            {ASSETS.map((asset) => (
+                                <div key={asset.id} className="group cursor-pointer">
+                                    <div className="relative aspect-[4/3] overflow-hidden mb-6 bg-neutral-900">
+                                        <img 
+                                            src={asset.image} 
+                                            alt={asset.title} 
+                                            className={`w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105 ${asset.status === 'Sold' ? 'grayscale opacity-50' : 'opacity-90'}`}
+                                        />
+                                        
+                                        {asset.status === 'Available' && (
+                                            <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-md px-3 py-1">
+                                                <span className="text-[10px] uppercase tracking-widest text-white flex items-center gap-2">
+                                                    <div className="w-1 h-1 bg-green-400 rounded-full animate-pulse" />
+                                                    Live
+                                                </span>
+                                            </div>
+                                        )}
+                                        
+                                        {/* Overlay on Hover */}
+                                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                    </div>
+
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h3 className="text-xl text-white font-light mb-1 group-hover:text-neutral-400 transition-colors">
+                                                {asset.title}
+                                            </h3>
+                                            <p className="text-xs text-neutral-500 uppercase tracking-widest mb-3">
+                                                {asset.specs}
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-lg text-white font-light">{asset.price}</p>
+                                            <p className="text-[10px] text-neutral-600 uppercase tracking-widest mt-1">
+                                                {asset.category}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        
+                        {/* Load More Trigger */}
+                        <div className="mt-20 flex justify-center">
+                            <button className="border border-neutral-800 text-neutral-400 px-12 py-4 text-xs uppercase tracking-[0.2em] hover:border-white hover:text-white transition-all">
+                                View All Inventory
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <footer className="border-t border-neutral-900 py-20 px-6 md:px-12">
+                        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
+                            <div>
+                                <span className="text-2xl font-light tracking-[0.2em] text-white block mb-6">PRIVÉ</span>
+                                <p className="text-neutral-600 text-xs max-w-xs leading-relaxed">
+                                    The world's most exclusive marketplace for tangible assets. 
+                                    Membership is by invitation only.
+                                </p>
+                            </div>
+                            <div className="flex gap-16 text-[10px] uppercase tracking-widest text-neutral-500">
+                                <ul className="flex flex-col gap-4">
+                                    <li className="text-white mb-2">Platform</li>
+                                    <li className="hover:text-white cursor-pointer transition-colors">Curated</li>
+                                    <li className="hover:text-white cursor-pointer transition-colors">Vault</li>
+                                    <li className="hover:text-white cursor-pointer transition-colors">Membership</li>
+                                </ul>
+                                <ul className="flex flex-col gap-4">
+                                    <li className="text-white mb-2">Legal</li>
+                                    <li className="hover:text-white cursor-pointer transition-colors">Terms</li>
+                                    <li className="hover:text-white cursor-pointer transition-colors">Privacy</li>
+                                    <li className="hover:text-white cursor-pointer transition-colors">Escrow</li>
+                                </ul>
+                                <ul className="flex flex-col gap-4">
+                                    <li className="text-white mb-2">Contact</li>
+                                    <li className="hover:text-white cursor-pointer transition-colors">Concierge</li>
+                                    <li className="hover:text-white cursor-pointer transition-colors">Press</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div className="max-w-7xl mx-auto mt-20 text-[10px] text-neutral-800 uppercase tracking-widest flex justify-between">
+                            <span>© 2025 Privé Holdings</span>
+                            <span>Secured by Ledger</span>
+                        </div>
+                    </footer>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        {/* Load More Trigger */}
-        <div className="mt-20 flex justify-center">
-          <button className="border border-neutral-800 text-neutral-400 px-12 py-4 text-xs uppercase tracking-[0.2em] hover:border-white hover:text-white transition-all">
-            View All Inventory
-          </button>
-        </div>
-      </div>
+            );
+        };
 
-      {/* Footer */}
-      <footer className="border-t border-neutral-900 py-20 px-6 md:px-12">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
-          <div>
-            <span className="text-2xl font-light tracking-[0.2em] text-white block mb-6">PRIVÉ</span>
-            <p className="text-neutral-600 text-xs max-w-xs leading-relaxed">
-              The world's most exclusive marketplace for tangible assets. 
-              Membership is by invitation only.
-            </p>
-          </div>
-          <div className="flex gap-16 text-[10px] uppercase tracking-widest text-neutral-500">
-            <ul className="flex flex-col gap-4">
-              <li className="text-white mb-2">Platform</li>
-              <li className="hover:text-white cursor-pointer transition-colors">Curated</li>
-              <li className="hover:text-white cursor-pointer transition-colors">Vault</li>
-              <li className="hover:text-white cursor-pointer transition-colors">Membership</li>
-            </ul>
-            <ul className="flex flex-col gap-4">
-              <li className="text-white mb-2">Legal</li>
-              <li className="hover:text-white cursor-pointer transition-colors">Terms</li>
-              <li className="hover:text-white cursor-pointer transition-colors">Privacy</li>
-              <li className="hover:text-white cursor-pointer transition-colors">Escrow</li>
-            </ul>
-            <ul className="flex flex-col gap-4">
-              <li className="text-white mb-2">Contact</li>
-              <li className="hover:text-white cursor-pointer transition-colors">Concierge</li>
-              <li className="hover:text-white cursor-pointer transition-colors">Press</li>
-            </ul>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto mt-20 text-[10px] text-neutral-800 uppercase tracking-widest flex justify-between">
-          <span>© 2025 Privé Holdings</span>
-          <span>Secured by Ledger</span>
-        </div>
-      </footer>
-    </div>
-  );
-};
+        const App = () => {
+            const [accessGranted, setAccessGranted] = useState(false);
 
-/* --- APP ENTRY POINT ---
-*/
-const App = () => {
-  const [accessGranted, setAccessGranted] = useState(false);
+            return (
+                <React.Fragment>
+                    {accessGranted ? (
+                        <Marketplace />
+                    ) : (
+                        <AccessGate onEnter={() => setAccessGranted(true)} />
+                    )}
+                </React.Fragment>
+            );
+        };
 
-  return (
-    <>
-      {accessGranted ? (
-        <Marketplace />
-      ) : (
-        <AccessGate onEnter={() => setAccessGranted(true)} />
-      )}
-    </>
-  );
-};
-
-export default App;
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
